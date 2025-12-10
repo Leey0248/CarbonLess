@@ -35,7 +35,7 @@
             <ImageView
                 android:id="@+id/FeedBackground"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="1200dp"
                 android:adjustViewBounds="true"
                 android:scaleType="fitCenter"
                 android:src="@drawable/background_scrollview"
@@ -49,5 +49,50 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>
+
+    <LinearLayout
+        android:id="@+id/NavigationRow"
+        android:layout_width="match_parent"
+        android:layout_height="96dp"
+        android:background="@color/light_blue"
+        android:orientation="horizontal"
+        android:gravity="center"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <LinearLayout
+            android:id="@+id/HomeItem"
+            android:background="@drawable/background"
+            android:backgroundTint="@color/good_item_bg_color"
+            android:layout_width="96dp"
+            android:layout_height="68dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <ImageView
+                android:id="@+id/HomeButton"
+                android:layout_width="match_parent"
+                android:layout_height="28dp"
+                android:tint="@color/good_fg_color"
+                android:adjustViewBounds="true"
+                android:scaleType="fitCenter"
+                android:src="@drawable/home_icon"/>
+
+            <TextView
+                android:id="@+id/HomeText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/font"
+                android:text="Home"
+                android:textColor="@color/good_fg_color"
+                android:layout_marginTop="4dp"
+                android:textSize="14dp"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -6,6 +6,7 @@ import android.widget.ImageView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -16,6 +17,7 @@ public class MainActivity extends AppCompatActivity {
     int FootprintStatus = 0; //0= good, 1= bad, 2= very bad
     ImageView BackgroundImage;
     ImageView FeedBackground;
+    ConstraintLayout main;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -25,9 +27,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         BackgroundImage = findViewById(R.id.BackgroundImage);
         FeedBackground = findViewById(R.id.FeedBackground);
+        main = findViewById(R.id.main);
         if (FootprintStatus == 0) {
             BackgroundImage.setImageResource(R.drawable.good_bg);
             FeedBackground.setColorFilter(ContextCompat.getColor(this, R.color.light_blue), android.graphics.PorterDuff.Mode.SRC_IN);
+            main.setBackgroundColor(getResources().getColor(R.color.light_blue));
         }
     }
 }

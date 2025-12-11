@@ -1,14 +1,10 @@
 package com.homecoming.carbonless;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -17,12 +13,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class MainActivity extends AppCompatActivity {
+public class AIChat extends AppCompatActivity {
 
     int FootprintStatus = 0; //0 = good, 1 = bad, 2 = very bad
-    ImageView BackgroundImage;
-    ImageView FeedBackground;
-    ImageView CreateFeed;
     LinearLayout NavigationRow;
     LinearLayout HomeItem;
     ImageView HomeButton;
@@ -32,68 +25,57 @@ public class MainActivity extends AppCompatActivity {
     TextView ChatText;
     ConstraintLayout main;
 
-    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-        BackgroundImage = findViewById(R.id.BackgroundImage);
-        FeedBackground = findViewById(R.id.FeedBackground);
-        CreateFeed = findViewById(R.id.CreateFeed);
+        setContentView(R.layout.activity_aichat);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
         NavigationRow = findViewById(R.id.NavigationRow);
         HomeItem = findViewById(R.id.HomeItem);
         HomeButton = findViewById(R.id.HomeButton);
         HomeText = findViewById(R.id.HomeText);
+        HomeItem.setOnClickListener(v -> {
+            Intent intent = new Intent(AIChat.this, MainActivity.class);
+            startActivity(intent);
+        });
         ChatItem = findViewById(R.id.ChatItem);
         ChatButton = findViewById(R.id.ChatButton);
         ChatText = findViewById(R.id.ChatText);
-        ChatItem.setOnClickListener(v -> {
-            Intent intent = new Intent(MainActivity.this, AIChat.class);
-            startActivity(intent);
-        });
         main = findViewById(R.id.main);
         if (FootprintStatus == 0) { // Good
-            BackgroundImage.setImageResource(R.drawable.good_bg);
-            FeedBackground.setColorFilter(ContextCompat.getColor(this, R.color.good_bg_color), android.graphics.PorterDuff.Mode.SRC_IN);
             NavigationRow.setBackgroundColor(getResources().getColor(R.color.good_bg_color));
-            //Set create feed bg color
-            CreateFeed.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.good_bg_color), PorterDuff.Mode.SRC_ATOP);
             //Set nav row item color
-            HomeItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.good_item_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
+            HomeItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.good_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
             HomeButton.setColorFilter(ContextCompat.getColor(this, R.color.good_fg_color), android.graphics.PorterDuff.Mode.SRC_IN);
             HomeText.setTextColor(getResources().getColor(R.color.good_fg_color));
-            ChatItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.good_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
+            ChatItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.good_item_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
             ChatButton.setColorFilter(ContextCompat.getColor(this, R.color.good_fg_color), android.graphics.PorterDuff.Mode.SRC_IN);
             ChatText.setTextColor(getResources().getColor(R.color.good_fg_color));
             // Ui bg color (only for ui errors)
             main.setBackgroundColor(getResources().getColor(R.color.good_bg_color));
         } else if (FootprintStatus == 1) { // Bad
-            BackgroundImage.setImageResource(R.drawable.bad_bg);
-            FeedBackground.setColorFilter(ContextCompat.getColor(this, R.color.bad_bg_color), android.graphics.PorterDuff.Mode.SRC_IN);
             NavigationRow.setBackgroundColor(getResources().getColor(R.color.bad_bg_color));
-            //Set create feed bg color
-            CreateFeed.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.bad_bg_color), PorterDuff.Mode.SRC_ATOP);
             //Set nav row item color
-            HomeItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.bad_item_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
+            HomeItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.bad_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
             HomeButton.setColorFilter(ContextCompat.getColor(this, R.color.bad_fg_color), android.graphics.PorterDuff.Mode.SRC_IN);
             HomeText.setTextColor(getResources().getColor(R.color.bad_fg_color));
-            ChatItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.bad_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
+            ChatItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.bad_item_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
             ChatButton.setColorFilter(ContextCompat.getColor(this, R.color.bad_fg_color), android.graphics.PorterDuff.Mode.SRC_IN);
             ChatText.setTextColor(getResources().getColor(R.color.bad_fg_color));
             // Ui bg color (only for ui errors)
             main.setBackgroundColor(getResources().getColor(R.color.bad_bg_color));
         } else if (FootprintStatus == 2) { // Very Bad
-            BackgroundImage.setImageResource(R.drawable.verybad_bg);
-            FeedBackground.setColorFilter(ContextCompat.getColor(this, R.color.verybad_bg_color), android.graphics.PorterDuff.Mode.SRC_IN);
             NavigationRow.setBackgroundColor(getResources().getColor(R.color.verybad_bg_color));
-            //Set create feed bg color
-            CreateFeed.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.verybad_bg_color), PorterDuff.Mode.SRC_ATOP);
             //Set nav row item color
-            HomeItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.verybad_item_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
+            HomeItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.verybad_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
             HomeButton.setColorFilter(ContextCompat.getColor(this, R.color.verybad_fg_color), android.graphics.PorterDuff.Mode.SRC_IN);
             HomeText.setTextColor(getResources().getColor(R.color.verybad_fg_color));
-            ChatItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.verybad_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
+            ChatItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.verybad_item_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
             ChatButton.setColorFilter(ContextCompat.getColor(this, R.color.verybad_fg_color), android.graphics.PorterDuff.Mode.SRC_IN);
             ChatText.setTextColor(getResources().getColor(R.color.verybad_fg_color));
             // Ui bg color (only for ui errors)

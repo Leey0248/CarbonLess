@@ -2,6 +2,7 @@ package com.homecoming.carbonless;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -16,6 +17,7 @@ import androidx.core.view.WindowInsetsCompat;
 public class AIChat extends AppCompatActivity {
 
     int FootprintStatus = 0; //0 = good, 1 = bad, 2 = very bad
+    EditText ChatBox;
     LinearLayout NavigationRow;
     LinearLayout HomeItem;
     ImageView HomeButton;
@@ -35,6 +37,7 @@ public class AIChat extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        ChatBox = findViewById(R.id.ChatBox);
         NavigationRow = findViewById(R.id.NavigationRow);
         HomeItem = findViewById(R.id.HomeItem);
         HomeButton = findViewById(R.id.HomeButton);
@@ -48,6 +51,9 @@ public class AIChat extends AppCompatActivity {
         ChatText = findViewById(R.id.ChatText);
         main = findViewById(R.id.main);
         if (FootprintStatus == 0) { // Good
+            ChatBox.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.good_item_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
+            ChatBox.setTextColor(getResources().getColor(R.color.good_fg_color));
+            ChatBox.setHintTextColor(getResources().getColor(R.color.good_fg_color));
             NavigationRow.setBackgroundColor(getResources().getColor(R.color.good_bg_color));
             //Set nav row item color
             HomeItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.good_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
@@ -59,6 +65,9 @@ public class AIChat extends AppCompatActivity {
             // Ui bg color (only for ui errors)
             main.setBackgroundColor(getResources().getColor(R.color.good_bg_color));
         } else if (FootprintStatus == 1) { // Bad
+            ChatBox.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.bad_item_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
+            ChatBox.setTextColor(getResources().getColor(R.color.bad_fg_color));
+            ChatBox.setHintTextColor(getResources().getColor(R.color.bad_fg_color));
             NavigationRow.setBackgroundColor(getResources().getColor(R.color.bad_bg_color));
             //Set nav row item color
             HomeItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.bad_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
@@ -70,6 +79,9 @@ public class AIChat extends AppCompatActivity {
             // Ui bg color (only for ui errors)
             main.setBackgroundColor(getResources().getColor(R.color.bad_bg_color));
         } else if (FootprintStatus == 2) { // Very Bad
+            ChatBox.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.verybad_item_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
+            ChatBox.setTextColor(getResources().getColor(R.color.verybad_fg_color));
+            ChatBox.setHintTextColor(getResources().getColor(R.color.verybad_fg_color));
             NavigationRow.setBackgroundColor(getResources().getColor(R.color.verybad_bg_color));
             //Set nav row item color
             HomeItem.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.verybad_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);

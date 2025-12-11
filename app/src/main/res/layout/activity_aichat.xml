@@ -9,6 +9,26 @@
     android:layout_height="match_parent"
     tools:context=".AIChat">
 
+    <EditText
+        android:id="@+id/ChatBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="16dp"
+        android:layout_marginBottom="16dp"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="16dp"
+        android:hint="Anything you want to ask."
+        android:textSize="20dp"
+        android:textColor="@color/good_fg_color"
+        android:background="@drawable/background"
+        android:backgroundTint="@color/good_item_bg_color"
+        android:fontFamily="@font/font"
+        android:textColorHint="@color/good_fg_color"
+        android:singleLine="false"
+        app:layout_constraintBottom_toTopOf="@id/NavigationRow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
     <LinearLayout
         android:id="@+id/NavigationRow"
         android:layout_width="match_parent"

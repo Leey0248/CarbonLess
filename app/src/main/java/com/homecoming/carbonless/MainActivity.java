@@ -16,6 +16,12 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -31,6 +37,9 @@ public class MainActivity extends AppCompatActivity {
     ImageView ChatButton;
     TextView ChatText;
     ConstraintLayout main;
+    RecyclerView recyclerView;
+    List<FeedItem> FeedList = new ArrayList<>();
+    FeedItemAdapter adapter;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -99,5 +108,17 @@ public class MainActivity extends AppCompatActivity {
             // Ui bg color (only for ui errors)
             main.setBackgroundColor(getResources().getColor(R.color.verybad_bg_color));
         }
+
+        // Setting up the RecyclerView
+        FeedList.clear();
+        recyclerView = findViewById(R.id.FeedView);
+
+        // Insert data
+        FeedList.add(new FeedItem("https://cdn.iview.abc.net.au/thumbs/1152/zw/ZW3739A038S00_67205bc59312f.jpg", "Item 1", "The quick brown fox jumps over the box."));
+        FeedList.add(new FeedItem("https://cdn.iview.abc.net.au/thumbs/1152/zw/ZW2487A035S00_6242660dd04c0.jpg", "Item 2", "Peppa helps Danny Dog with a bedroom make-over on the theme of pirates and sea monsters."));
+
+        adapter = new FeedItemAdapter(FeedList);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
     }
 }

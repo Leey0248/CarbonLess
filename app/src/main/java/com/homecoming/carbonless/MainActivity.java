@@ -27,6 +27,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     int FootprintStatus = 0; //0 = good, 1 = bad, 2 = very bad
+    double CarbonFootprintDaily = 2;
     String UserName = "George";
     ImageView BackgroundImage;
     ImageView FeedBackground;
@@ -43,6 +44,7 @@ public class MainActivity extends AppCompatActivity {
     List<FeedItem> FeedList = new ArrayList<>();
     FeedItemAdapter adapter;
     TextView title;
+    TextView CarbnFootprint;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -65,6 +67,35 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
         main = findViewById(R.id.main);
+        CarbnFootprint = findViewById(R.id.CarbnFootprint);
+        CarbnFootprint.setText(CarbonFootprintDaily + " kg CO2e");
+        if (CarbonFootprintDaily > 10 && CarbonFootprintDaily <= 15) {
+            FootprintStatus = 1;
+        } else if (CarbonFootprintDaily > 15) {
+            FootprintStatus = 2;
+        }
+        setUiColor();
+
+        title = findViewById(R.id.title);
+        if (UserName != null) {
+            title.setText("Hi, " + UserName + "!");
+        }
+
+        // Setting up the RecyclerView
+        FeedList.clear();
+        recyclerView = findViewById(R.id.FeedView);
+
+        // Insert data
+        FeedList.add(new FeedItem("https://cdn.iview.abc.net.au/thumbs/1152/zw/ZW3739A038S00_67205bc59312f.jpg", "Item 1", "The quick brown fox jumps over the box."));
+        FeedList.add(new FeedItem("https://cdn.iview.abc.net.au/thumbs/1152/zw/ZW2487A035S00_6242660dd04c0.jpg", "Item 2", "Peppa helps Danny Dog with a bedroom make-over on the theme of pirates and sea monsters."));
+        FeedList.add(new FeedItem("https://cdn.iview.abc.net.au/thumbs/1152/zw/ZW2487A031S00_6239303f2e23e.jpg", "Item 3", "Peppa and her friends are playing in their clubhouse. The Club House has a fold down counter at the front. The children pretend to be a little shop for the parents to buy things from."));
+
+        adapter = new FeedItemAdapter(FeedList);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerView.setAdapter(adapter);
+    }
+
+    public void setUiColor() {
         if (FootprintStatus == 0) { // Good
             BackgroundImage.setImageResource(R.drawable.good_bg);
             FeedBackground.setColorFilter(ContextCompat.getColor(this, R.color.good_bg_color), android.graphics.PorterDuff.Mode.SRC_IN);
@@ -111,23 +142,5 @@ public class MainActivity extends AppCompatActivity {
             // Ui bg color (only for ui errors)
             main.setBackgroundColor(getResources().getColor(R.color.verybad_bg_color));
         }
-
-        title = findViewById(R.id.title);
-        if (UserName != null) {
-            title.setText("Hi, " + UserName + "!");
-        }
-
-        // Setting up the RecyclerView
-        FeedList.clear();
-        recyclerView = findViewById(R.id.FeedView);
-
-        // Insert data
-        FeedList.add(new FeedItem("https://cdn.iview.abc.net.au/thumbs/1152/zw/ZW3739A038S00_67205bc59312f.jpg", "Item 1", "The quick brown fox jumps over the box."));
-        FeedList.add(new FeedItem("https://cdn.iview.abc.net.au/thumbs/1152/zw/ZW2487A035S00_6242660dd04c0.jpg", "Item 2", "Peppa helps Danny Dog with a bedroom make-over on the theme of pirates and sea monsters."));
-        FeedList.add(new FeedItem("https://cdn.iview.abc.net.au/thumbs/1152/zw/ZW2487A031S00_6239303f2e23e.jpg", "Item 3", "Peppa and her friends are playing in their clubhouse. The Club House has a fold down counter at the front. The children pretend to be a little shop for the parents to buy things from."));
-
-        adapter = new FeedItemAdapter(FeedList);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setAdapter(adapter);
     }
 }

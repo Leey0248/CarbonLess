@@ -32,18 +32,17 @@
     <LinearLayout
         android:id="@+id/NavigationRow"
         android:layout_width="match_parent"
-        android:layout_height="72dp"
+        android:layout_height="wrap_content"
         android:background="@color/good_bg_color"
         android:orientation="horizontal"
         android:gravity="center"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        android:padding="8dp"
+        app:layout_constraintBottom_toBottomOf="parent">
 
         <LinearLayout
             android:id="@+id/HomeItem"
             android:background="@drawable/background"
-            android:backgroundTint="@color/good_bg_color"
+            android:backgroundTint="@color/good_item_bg_color"
             android:layout_width="78dp"
             android:layout_height="64dp"
             android:orientation="vertical"
@@ -72,12 +71,12 @@
 
         <View
             android:layout_width="16dp"
-            android:layout_height="wrap_content"/>
+            android:layout_height="16dp"/>
 
         <LinearLayout
             android:id="@+id/ChatItem"
             android:background="@drawable/background"
-            android:backgroundTint="@color/good_item_bg_color"
+            android:backgroundTint="@color/good_bg_color"
             android:layout_width="78dp"
             android:layout_height="64dp"
             android:orientation="vertical"

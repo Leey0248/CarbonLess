@@ -1,5 +1,6 @@
 package com.homecoming.carbonless;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import java.util.List;
 
-public class FeedItemAdapter extends RecyclerView.Adapter<FeedItemAdapter.TaskViewHolder> {
+public class FeedItemAdapter extends RecyclerView.Adapter<FeedItemAdapter.FeedViewHolder> {
 
     private final List<FeedItem> dataList;
 
@@ -25,12 +26,12 @@ public class FeedItemAdapter extends RecyclerView.Adapter<FeedItemAdapter.TaskVi
     }
 
     // --- 1. The ViewHolder: Holds the view references and click logic ---
-    public class TaskViewHolder extends RecyclerView.ViewHolder {
+    public class FeedViewHolder extends RecyclerView.ViewHolder {
         public ImageView Image;
         public TextView Title;
         public TextView Summary;
 
-        public TaskViewHolder(View itemView) {
+        public FeedViewHolder(View itemView) {
             super(itemView);
             Image = itemView.findViewById(R.id.Image);
             Title = itemView.findViewById(R.id.Title);
@@ -38,7 +39,7 @@ public class FeedItemAdapter extends RecyclerView.Adapter<FeedItemAdapter.TaskVi
 
             // Set the Long Click listener on the entire item view
             itemView.setOnClickListener(v -> {
-
+                Log.d("FeedItem", "Item Pressed!");
             });
         }
     }
@@ -46,16 +47,16 @@ public class FeedItemAdapter extends RecyclerView.Adapter<FeedItemAdapter.TaskVi
     // --- 2. onCreateViewHolder: Called when RecyclerView needs a new ViewHolder ---
     @NonNull
     @Override
-    public TaskViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+    public FeedViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         // Inflate the item layout (list_item.xml)
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.feed_item, parent, false);
-        return new TaskViewHolder(view);
+        return new FeedViewHolder(view);
     }
 
     // --- 3. onBindViewHolder: Binds the data to the views in the ViewHolder ---
     @Override
-    public void onBindViewHolder(@NonNull TaskViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull FeedViewHolder holder, int position) {
         FeedItem currentItem = dataList.get(position);
         String imageUrl = String.valueOf(currentItem.getImageUrl());
         ImageDownloader.downloadAndSetImage(imageUrl, holder.Image);

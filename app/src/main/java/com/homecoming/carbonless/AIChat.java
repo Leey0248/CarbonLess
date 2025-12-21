@@ -38,7 +38,8 @@ public class AIChat extends AppCompatActivity {
     TextView HomeText, ChatText, LLMChat;
     ConstraintLayout main;
     private LlmInference llmInference;
-    private final String MODEL_URL = "https://huggingface.co/litert-community/Gemma3-1B-IT/resolve/main/Gemma3-1B-IT_multi-prefill-seq_q4_block128_ekv1280.task";
+    //private final String MODEL_URL = "https://huggingface.co/litert-community/Gemma3-1B-IT/resolve/main/Gemma3-1B-IT_multi-prefill-seq_q4_block128_ekv1280.task";
+    private final String MODEL_URL = "https://drive.usercontent.google.com/download?id=1m-hzkBtQLfK1FB4xxwlvRWqFLZljD6DZ&export=download&confirm=t&uuid=12241e88-307e-45db-8d64-27cf7d72ff41";
     private final String MODEL_FILE_NAME = "gemma3.task";
     private long downloadID;
 
@@ -196,7 +197,7 @@ public class AIChat extends AppCompatActivity {
                 .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
                 .setDestinationInExternalFilesDir(this, null, MODEL_FILE_NAME)
                 // ADD THESE TWO HEADERS:
-                .addRequestHeader("Authorization", "Bearer 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")
+                //.addRequestHeader("Authorization", "Bearer hf_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
                 .addRequestHeader("User-Agent", "Mozilla/5.0 (Android)");
 
         DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);

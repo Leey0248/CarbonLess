@@ -10,15 +10,17 @@
     tools:context=".AIChat">
 
     <ScrollView
+        android:id="@+id/ScrollView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:fillViewport="true"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toTopOf="@id/ChatBox">
 
         <TextView
             android:id="@+id/LlmChat"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:padding="16dp"
             android:text=""
             android:fontFamily="@font/font"

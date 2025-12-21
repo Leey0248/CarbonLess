@@ -10,9 +10,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -27,13 +30,13 @@ import java.io.File;
 public class AIChat extends AppCompatActivity {
 
     private static final String TAG = "AIChat_Debug";
+    StringBuilder ChatString;
     int FootprintStatus = 0;
     EditText ChatBox;
     LinearLayout NavigationRow, HomeItem, ChatItem;
     ImageView HomeButton, ChatButton, SendButton;
     TextView HomeText, ChatText, LLMChat;
     ConstraintLayout main;
-
     private LlmInference llmInference;
     private final String MODEL_URL = "https://huggingface.co/litert-community/Gemma3-1B-IT/resolve/main/Gemma3-1B-IT_multi-prefill-seq_q4_block128_ekv1280.task";
     private final String MODEL_FILE_NAME = "gemma3.task";
@@ -43,6 +46,7 @@ public class AIChat extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_aichat);
 
@@ -59,10 +63,41 @@ public class AIChat extends AppCompatActivity {
         SendButton = findViewById(R.id.SendButton);
         main = findViewById(R.id.main);
 
+        ChatString = new StringBuilder("");
+
         ViewCompat.setOnApplyWindowInsetsListener(main, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
+            Insets imeInsets = insets.getInsets(WindowInsetsCompat.Type.ime());
+
+            // 1. Handle basic system bar padding (Top/Sides)
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+
+            // 2. Calculate the keyboard height relative to the navigation bar
+            int keyboardHeight = imeInsets.bottom - systemBars.bottom;
+            int margin16dp = (int) (16 * getResources().getDisplayMetrics().density);
+
+            if (keyboardHeight > 0) {
+                // KEYBOARD OPEN
+                // Shift BOTH the ChatBox and the SendButton up.
+                // We add the keyboard height PLUS your 16dp margin.
+                float moveUpBy = -(keyboardHeight + margin16dp);
+
+                ChatBox.setTranslationY(moveUpBy);
+                SendButton.setTranslationY(moveUpBy);
+
+                // Hide the navigation row so it doesn't stay visible behind/under the box
+                NavigationRow.setVisibility(View.GONE);
+            } else {
+                // KEYBOARD CLOSED
+                ChatBox.setTranslationY(0);
+                SendButton.setTranslationY(0);
+                NavigationRow.setVisibility(View.VISIBLE);
+
+                // Add bottom padding so NavRow sits above system buttons
+                v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            }
+
+            return WindowInsetsCompat.CONSUMED;
         });
 
         HomeItem.setOnClickListener(v -> startActivity(new Intent(AIChat.this, MainActivity.class)));
@@ -74,10 +109,33 @@ public class AIChat extends AppCompatActivity {
                 String input = ChatBox.getText().toString().trim();
                 if (!input.isEmpty() && llmInference != null) {
                     generateResponse(input);
+                    if (ChatString.length() == 0) {
+                        ChatString.append("You:\n" + input);
+                    } else {
+                        ChatString.append("\n\nYou:\n" + input);
+                    }
+                    String userFormatted = ChatString.toString().replace("\n", "<br>").replaceAll("\\*\\*(.*?)\\*\\*", "<b>$1</b>");
+                    LLMChat.setText(android.text.Html.fromHtml(userFormatted, android.text.Html.FROM_HTML_MODE_LEGACY));
                     ChatBox.setText("");
                 } else if (llmInference == null) {
                     LLMChat.setText("AI is still loading...");
                 }
+        });
+
+        ScrollView scrollView = findViewById(R.id.ScrollView); // Add an ID to your ScrollView
+        EditText chatBox = findViewById(R.id.ChatBox);
+
+        // Scroll to bottom whenever the EditText is clicked/focused
+        chatBox.setOnFocusChangeListener((v, hasFocus) -> {
+            if (hasFocus) {
+                // Use postDelayed to wait for the keyboard animation to finish
+                scrollView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        scrollView.fullScroll(View.FOCUS_DOWN);
+                    }
+                }, 300);
+            }
         });
     }
 
@@ -172,16 +230,32 @@ public class AIChat extends AppCompatActivity {
     private void generateResponse(String prompt) {
         if (llmInference == null) return;
 
-        LLMChat.setText("Thinking...");
+        LLMChat.setText(ChatString + "\n\nThinking...");
+        final boolean[] isFirstData = {true};
 
-        // FIXED: The listener and casting logic are handled here
         llmInference.generateResponseAsync(prompt, (result, done) -> {
             runOnUiThread(() -> {
                 String partialText = String.valueOf(result);
-                if (LLMChat.getText().toString().equals("Thinking...")) {
-                    LLMChat.setText(partialText);
+
+                if (isFirstData[0]) {
+                    ChatString.append("\n\nAI Model:\n" + partialText);
+                    isFirstData[0] = false;
                 } else {
-                    LLMChat.append(partialText);
+                    ChatString.append(partialText);
+                }
+
+                // --- MARKDOWN TO HTML CONVERSION ---
+                // Replace **text** with <b>text</b>
+                String formattedText = ChatString.toString().replaceAll("\\*\\*(.*?)\\*\\*", "<b>$1</b>");
+
+                // Handle line breaks (HTML needs <br> instead of \n)
+                formattedText = formattedText.replace("\n", "<br>");
+
+                // Set the text using fromHtml
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                    LLMChat.setText(android.text.Html.fromHtml(formattedText, android.text.Html.FROM_HTML_MODE_LEGACY));
+                } else {
+                    LLMChat.setText(android.text.Html.fromHtml(formattedText));
                 }
             });
         });

@@ -17,6 +17,7 @@
         android:theme="@style/Theme.CarbonLess">
         <activity
             android:name=".AIChat"
+            android:windowSoftInputMode="adjustResize"
             android:exported="false" />
         <activity
             android:name=".MainActivity"

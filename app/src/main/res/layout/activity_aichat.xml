@@ -9,15 +9,23 @@
     android:layout_height="match_parent"
     tools:context=".AIChat">
 
-    <TextView
-        android:id="@+id/LlmChat"
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        android:text="The quick brown fox jumps over the box."
-        android:fontFamily="@font/font"
-        android:textColor="@color/good_fg_color"
-        android:textSize="16dp" />
+        android:layout_height="0dp"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/ChatBox">
+
+        <TextView
+            android:id="@+id/LlmChat"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:text=""
+            android:fontFamily="@font/font"
+            android:textColor="@color/good_fg_color"
+            android:textSize="16dp" />
+
+    </ScrollView>
 
     <EditText
         android:id="@+id/ChatBox"

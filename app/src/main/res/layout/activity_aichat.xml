@@ -13,18 +13,20 @@
         android:id="@+id/LlmChat"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:padding="16dp"
+        android:text="The quick brown fox jumps over the box."
         android:fontFamily="@font/font"
-        android:textColor="@color/white"
-        android:textSize="26dp" />
+        android:textColor="@color/good_fg_color"
+        android:textSize="16dp" />
 
     <EditText
         android:id="@+id/ChatBox"
-        android:layout_width="match_parent"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="16dp"
         android:layout_marginBottom="16dp"
         android:layout_marginStart="16dp"
-        android:layout_marginEnd="16dp"
+        android:layout_marginEnd="8dp"
         android:hint="Anything you want to ask."
         android:textSize="20dp"
         android:textColor="@color/good_fg_color"
@@ -35,7 +37,22 @@
         android:singleLine="false"
         app:layout_constraintBottom_toTopOf="@id/NavigationRow"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toStartOf="@id/SendButton"/>
+
+    <ImageView
+        android:id="@+id/SendButton"
+        android:layout_width="wrap_content"
+        android:layout_height="54dp"
+        android:padding="16dp"
+        android:tint="@color/good_fg_color"
+        android:background="@drawable/background"
+        android:adjustViewBounds="true"
+        android:scaleType="fitCenter"
+        android:src="@drawable/send"
+        android:layout_marginEnd="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/ChatBox"
+        app:layout_constraintBottom_toBottomOf="@id/ChatBox"/>
 
     <LinearLayout
         android:id="@+id/NavigationRow"

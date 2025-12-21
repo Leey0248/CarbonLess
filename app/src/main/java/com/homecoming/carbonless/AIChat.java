@@ -1,9 +1,15 @@
 package com.homecoming.carbonless;
 
 import android.annotation.SuppressLint;
+import android.app.DownloadManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
-import android.graphics.PorterDuff;
+import android.content.IntentFilter;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -15,20 +21,23 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import com.google.mediapipe.tasks.genai.llminference.LlmInference;
+import java.io.File;
 
 public class AIChat extends AppCompatActivity {
 
-    int FootprintStatus = 0; //0 = good, 1 = bad, 2 = very bad
+    private static final String TAG = "AIChat_Debug";
+    int FootprintStatus = 0;
     EditText ChatBox;
-    LinearLayout NavigationRow;
-    LinearLayout HomeItem;
-    ImageView HomeButton;
-    TextView HomeText;
-    LinearLayout ChatItem;
-    ImageView ChatButton;
-    TextView ChatText;
-    TextView LLMChat;
+    LinearLayout NavigationRow, HomeItem, ChatItem;
+    ImageView HomeButton, ChatButton, SendButton;
+    TextView HomeText, ChatText, LLMChat;
     ConstraintLayout main;
+
+    private LlmInference llmInference;
+    private final String MODEL_URL = "https://huggingface.co/litert-community/Gemma3-1B-IT/resolve/main/Gemma3-1B-IT_multi-prefill-seq_q4_block128_ekv1280.task";
+    private final String MODEL_FILE_NAME = "gemma3.task";
+    private long downloadID;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -36,30 +45,158 @@ public class AIChat extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_aichat);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+
+        // Initialize Views
         ChatBox = findViewById(R.id.ChatBox);
+        LLMChat = findViewById(R.id.LlmChat);
         NavigationRow = findViewById(R.id.NavigationRow);
         HomeItem = findViewById(R.id.HomeItem);
         HomeButton = findViewById(R.id.HomeButton);
         HomeText = findViewById(R.id.HomeText);
-        HomeItem.setOnClickListener(v -> {
-            Intent intent = new Intent(AIChat.this, MainActivity.class);
-            startActivity(intent);
-        });
         ChatItem = findViewById(R.id.ChatItem);
         ChatButton = findViewById(R.id.ChatButton);
         ChatText = findViewById(R.id.ChatText);
-        LLMChat = findViewById(R.id.LlmChat);
+        SendButton = findViewById(R.id.SendButton);
         main = findViewById(R.id.main);
+
+        ViewCompat.setOnApplyWindowInsetsListener(main, (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
+
+        HomeItem.setOnClickListener(v -> startActivity(new Intent(AIChat.this, MainActivity.class)));
+
         setUiColor();
+        checkAndPrepareModel();
+
+        SendButton.setOnClickListener(v -> {
+                String input = ChatBox.getText().toString().trim();
+                if (!input.isEmpty() && llmInference != null) {
+                    generateResponse(input);
+                    ChatBox.setText("");
+                } else if (llmInference == null) {
+                    LLMChat.setText("AI is still loading...");
+                }
+        });
+    }
+
+    private void checkAndPrepareModel() {
+        File modelFile = new File(getExternalFilesDir(null), MODEL_FILE_NAME);
+        if (modelFile.exists()) {
+            Log.d(TAG, "Model found locally. Initializing...");
+            initLlm(modelFile.getAbsolutePath());
+        } else {
+            Log.d(TAG, "Model not found. Starting download.");
+            LLMChat.setText("Downloading AI model (~1GB). Please wait...");
+            startModelDownload();
+        }
+    }
+
+    private final BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            long id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+            if (downloadID == id) {
+                DownloadManager query = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+                DownloadManager.Query q = new DownloadManager.Query();
+                q.setFilterById(id);
+                android.database.Cursor c = query.query(q);
+
+                if (c.moveToFirst()) {
+                    @SuppressLint("Range") int status = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_STATUS));
+                    if (status == DownloadManager.STATUS_SUCCESSFUL) {
+                        File downloadedFile = new File(getExternalFilesDir(null), MODEL_FILE_NAME);
+                        initLlm(downloadedFile.getAbsolutePath());
+                    } else {
+                        // This will tell you the exact error (e.g., 403, 404, 500)
+                        @SuppressLint("Range") int reason = c.getInt(c.getColumnIndex(DownloadManager.COLUMN_REASON));
+                        Log.e("AIChat_Debug", "Download failed! Reason code: " + reason);
+                        runOnUiThread(() -> LLMChat.setText("Download failed. Error Code: " + reason));
+                    }
+                }
+                c.close();
+            }
+        }
+    };
+
+    // Inside AIChat.java, replace your startModelDownload method:
+
+    @SuppressLint("UnspecifiedRegisterReceiverFlag")
+    private void startModelDownload() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE), Context.RECEIVER_EXPORTED);
+        } else {
+            registerReceiver(onDownloadComplete, new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
+        }
+
+        // UPDATED URL: Sometimes 'main' branch needs to be explicit or 'resolve' is picky.
+        // Ensure you are using the exact link from the "Download" button on HF.
+        DownloadManager.Request request = new DownloadManager.Request(Uri.parse(MODEL_URL))
+                .setTitle("Downloading Gemma 3")
+                .setDescription("Preparing AI chat...")
+                .setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+                .setDestinationInExternalFilesDir(this, null, MODEL_FILE_NAME)
+                // ADD THESE TWO HEADERS:
+                .addRequestHeader("Authorization", "Bearer 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")
+                .addRequestHeader("User-Agent", "Mozilla/5.0 (Android)");
+
+        DownloadManager downloadManager = (DownloadManager) getSystemService(DOWNLOAD_SERVICE);
+        if (downloadManager != null) {
+            downloadID = downloadManager.enqueue(request);
+            Log.d("AIChat_Debug", "Download enqueued. ID: " + downloadID);
+        }
+    }
+
+    private void initLlm(String path) {
+        runOnUiThread(() -> LLMChat.setText("Loading AI into memory..."));
+
+        new Thread(() -> {
+            try {
+                // FIXED: Removed setResultListener from builder (it goes in generateResponseAsync)
+                LlmInference.LlmInferenceOptions options = LlmInference.LlmInferenceOptions.builder()
+                        .setModelPath(path)
+                        .setMaxTokens(1024)
+                        .build();
+
+                llmInference = LlmInference.createFromOptions(this, options);
+                runOnUiThread(() -> LLMChat.setText("AI Ready! Ask me anything about your footprint."));
+                Log.d(TAG, "LlmInference created successfully.");
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to init LLM", e);
+                runOnUiThread(() -> LLMChat.setText("Init Error: " + e.getMessage()));
+            }
+        }).start();
+    }
+
+    private void generateResponse(String prompt) {
+        if (llmInference == null) return;
+
+        LLMChat.setText("Thinking...");
+
+        // FIXED: The listener and casting logic are handled here
+        llmInference.generateResponseAsync(prompt, (result, done) -> {
+            runOnUiThread(() -> {
+                String partialText = String.valueOf(result);
+                if (LLMChat.getText().toString().equals("Thinking...")) {
+                    LLMChat.setText(partialText);
+                } else {
+                    LLMChat.append(partialText);
+                }
+            });
+        });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try { unregisterReceiver(onDownloadComplete); } catch (Exception ignored) {}
+        if (llmInference != null) llmInference.close();
     }
 
     public void setUiColor() {
         if (FootprintStatus == 0) { // Good
+            LLMChat.setTextColor(getResources().getColor(R.color.good_fg_color));
             ChatBox.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.good_item_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
             ChatBox.setTextColor(getResources().getColor(R.color.good_fg_color));
             ChatBox.setHintTextColor(getResources().getColor(R.color.good_fg_color));
@@ -74,6 +211,7 @@ public class AIChat extends AppCompatActivity {
             // Ui bg color (only for ui errors)
             main.setBackgroundColor(getResources().getColor(R.color.good_bg_color));
         } else if (FootprintStatus == 1) { // Bad
+            LLMChat.setTextColor(getResources().getColor(R.color.bad_fg_color));
             ChatBox.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.bad_item_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
             ChatBox.setTextColor(getResources().getColor(R.color.bad_fg_color));
             ChatBox.setHintTextColor(getResources().getColor(R.color.bad_fg_color));
@@ -88,6 +226,7 @@ public class AIChat extends AppCompatActivity {
             // Ui bg color (only for ui errors)
             main.setBackgroundColor(getResources().getColor(R.color.bad_bg_color));
         } else if (FootprintStatus == 2) { // Very Bad
+            LLMChat.setTextColor(getResources().getColor(R.color.verybad_fg_color));
             ChatBox.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.verybad_item_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
             ChatBox.setTextColor(getResources().getColor(R.color.verybad_fg_color));
             ChatBox.setHintTextColor(getResources().getColor(R.color.verybad_fg_color));

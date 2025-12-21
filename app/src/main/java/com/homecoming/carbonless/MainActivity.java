@@ -4,29 +4,21 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.ViewGroupCompat;
-import androidx.core.view.WindowInsetsCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    int FootprintStatus = 0; //0 = good, 1 = bad, 2 = very bad
+    int FootprintStatus = 0; // 0 = good, 1 = bad, 2 = very bad
     double CarbonFootprintDaily = 2;
     String UserName = "George";
     ImageView BackgroundImage;
@@ -69,9 +61,13 @@ public class MainActivity extends AppCompatActivity {
         main = findViewById(R.id.main);
         CarbnFootprint = findViewById(R.id.CarbnFootprint);
         CarbnFootprint.setText(CarbonFootprintDaily + " kg CO2e");
-        if (CarbonFootprintDaily > 10 && CarbonFootprintDaily <= 15) {
+        // Normal (Sustainable): 6 – 7 kg	(This is the target "Earth-friendly" daily budget for 2030.)
+        // Global Average: 12 – 18 kg	(The current actual average per person globally.)
+        // High: 35 – 50 kg	(Common in Western Europe or for frequent travelers.)
+        // Too High: Over 60 kg	(The average for residents of the US, Canada, or Australia.)
+        if (CarbonFootprintDaily > 16 && CarbonFootprintDaily <= 30) {
             FootprintStatus = 1;
-        } else if (CarbonFootprintDaily > 15) {
+        } else if (CarbonFootprintDaily > 30) {
             FootprintStatus = 2;
         }
         setUiColor();
@@ -81,6 +77,11 @@ public class MainActivity extends AppCompatActivity {
             title.setText("Hi, " + UserName + "!");
         }
 
+        recyclerView = findViewById(R.id.FeedView);
+        loadFeed();
+    }
+
+    public void loadFeed() {
         // Setting up the RecyclerView
         FeedList.clear();
         recyclerView = findViewById(R.id.FeedView);
@@ -94,7 +95,6 @@ public class MainActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }
-
     public void setUiColor() {
         if (FootprintStatus == 0) { // Good
             BackgroundImage.setImageResource(R.drawable.good_bg);

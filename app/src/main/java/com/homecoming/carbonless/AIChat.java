@@ -1,6 +1,8 @@
 package com.homecoming.carbonless;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -25,8 +27,10 @@ public class AIChat extends AppCompatActivity {
     LinearLayout ChatItem;
     ImageView ChatButton;
     TextView ChatText;
+    TextView LLMChat;
     ConstraintLayout main;
 
+    @SuppressLint("MissingInflatedId")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,7 +53,12 @@ public class AIChat extends AppCompatActivity {
         ChatItem = findViewById(R.id.ChatItem);
         ChatButton = findViewById(R.id.ChatButton);
         ChatText = findViewById(R.id.ChatText);
+        LLMChat = findViewById(R.id.LlmChat);
         main = findViewById(R.id.main);
+        setUiColor();
+    }
+
+    public void setUiColor() {
         if (FootprintStatus == 0) { // Good
             ChatBox.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.good_item_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
             ChatBox.setTextColor(getResources().getColor(R.color.good_fg_color));

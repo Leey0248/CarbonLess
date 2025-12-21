@@ -9,6 +9,14 @@
     android:layout_height="match_parent"
     tools:context=".AIChat">
 
+    <TextView
+        android:id="@+id/LlmChat"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fontFamily="@font/font"
+        android:textColor="@color/white"
+        android:textSize="26dp" />
+
     <EditText
         android:id="@+id/ChatBox"
         android:layout_width="match_parent"

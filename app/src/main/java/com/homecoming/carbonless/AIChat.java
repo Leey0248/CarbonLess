@@ -179,8 +179,6 @@ public class AIChat extends AppCompatActivity {
         }
     };
 
-    // Inside AIChat.java, replace your startModelDownload method:
-
     @SuppressLint("UnspecifiedRegisterReceiverFlag")
     private void startModelDownload() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {

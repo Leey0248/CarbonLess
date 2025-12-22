@@ -16,7 +16,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CarbonLess">
         <activity
-            android:name=".CarbonFootprintHistory"
+            android:name=".CarbonFootprintGeneral"
             android:exported="false" />
         <activity
             android:name=".AIChat"

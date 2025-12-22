@@ -123,10 +123,9 @@ public class AIChat extends AppCompatActivity {
                 }
         });
 
-        ScrollView scrollView = findViewById(R.id.ScrollView); // Add an ID to your ScrollView
+        // Making the textbox to be at the top of the keyboard
+        ScrollView scrollView = findViewById(R.id.ScrollView);
         EditText chatBox = findViewById(R.id.ChatBox);
-
-        // Scroll to bottom whenever the EditText is clicked/focused
         chatBox.setOnFocusChangeListener((v, hasFocus) -> {
             if (hasFocus) {
                 // Use postDelayed to wait for the keyboard animation to finish

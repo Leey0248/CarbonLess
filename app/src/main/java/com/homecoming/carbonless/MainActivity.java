@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -32,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout ChatItem;
     ImageView ChatButton;
     TextView ChatText;
+    View CarbnFootprintTouchArea;
     ConstraintLayout main;
     RecyclerView recyclerView;
     List<FeedItem> FeedList = new ArrayList<>();
@@ -56,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
         ChatItem = findViewById(R.id.ChatItem);
         ChatButton = findViewById(R.id.ChatButton);
         ChatText = findViewById(R.id.ChatText);
+        CarbnFootprintTouchArea = findViewById(R.id.CarbnFootprintTouchArea);
+        CarbnFootprintTouchArea.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, CarbonFootprintGeneral.class)));
 
         ChatItem.setOnClickListener(v -> {
             Intent intent = new Intent(MainActivity.this, AIChat.class);
@@ -64,7 +68,6 @@ public class MainActivity extends AppCompatActivity {
         main = findViewById(R.id.main);
         CarbnFootprint = findViewById(R.id.CarbnFootprint);
         CarbnFootprint.setText(CarbonFootprintDaily + " kg CO2e");
-        CarbnFootprint.setOnClickListener(v -> startActivity(new Intent(MainActivity.this, CarbonFootprintGeneral.class)));
         // Normal (Sustainable): 6 – 7 kg	(This is the target "Earth-friendly" daily budget for 2030.)
         // Global Average: 12 – 18 kg	(The current actual average per person globally.)
         // High: 35 – 50 kg	(Common in Western Europe or for frequent travelers.)

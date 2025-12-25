@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
+import androidx.core.text.HtmlCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import com.google.mediapipe.tasks.genai.llminference.LlmInference;
@@ -242,21 +243,22 @@ public class AIChat extends AppCompatActivity {
                     ChatString.append(partialText);
                 }
 
-                // --- MARKDOWN TO HTML CONVERSION ---
-                // Replace **text** with <b>text</b>
-                String formattedText = ChatString.toString().replaceAll("\\*\\*(.*?)\\*\\*", "<b>$1</b>");
+                String formattedHtml = convertMarkdownToHtml(ChatString.toString());
 
-                // Handle line breaks (HTML needs <br> instead of \n)
-                formattedText = formattedText.replace("\n", "<br>");
-
-                // Set the text using fromHtml
-                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
-                    LLMChat.setText(android.text.Html.fromHtml(formattedText, android.text.Html.FROM_HTML_MODE_LEGACY));
-                } else {
-                    LLMChat.setText(android.text.Html.fromHtml(formattedText));
-                }
+                LLMChat.setText(HtmlCompat.fromHtml(
+                        formattedHtml,
+                        HtmlCompat.FROM_HTML_MODE_LEGACY
+                ));
             });
         });
+    }
+
+    private String convertMarkdownToHtml(String text) {
+        return text
+                .replace("\\n", "\n")
+                .replaceAll("\\*\\*(.*?)\\*\\*", "<b>$1</b>")
+                .replaceAll("\\*(.*?)\\*", "<i>$1</i>")
+                .replace("\n", "<br>");
     }
 
     @Override

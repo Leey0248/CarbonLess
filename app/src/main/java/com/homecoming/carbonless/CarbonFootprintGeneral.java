@@ -33,8 +33,8 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
 
     private static final String TAG = "CarbonFootprintGeneral_LLM_Debug";
     StringBuilder ChatString;
-    int FootprintStatus = 0;
-    ImageView Back, Settings;
+    int FootprintStatus;
+    ImageView BackgroundImage, Back, Settings, FeedBackground;
     TextView CarbnFootprint, Suggestions;
     ConstraintLayout main;
     private LlmInference llmInference;
@@ -52,17 +52,22 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
         setContentView(R.layout.activity_carbon_footprint_general);
 
         // Initialize Views
+        BackgroundImage = findViewById(R.id.BackgroundImage);
         Back = findViewById(R.id.back);
         Settings = findViewById(R.id.settings);
         CarbnFootprint = findViewById(R.id.CarbnFootprint);
         Suggestions = findViewById(R.id.Suggestions);
         main = findViewById(R.id.main);
+        FeedBackground = findViewById(R.id.FeedBackground);
+
+        CarbnFootprint.setText(UDD.GetFootprint() + " t CO2e");
 
         ChatString = new StringBuilder("AI Suggestion:\n");
 
 
         Back.setOnClickListener(v -> startActivity(new Intent(CarbonFootprintGeneral.this, MainActivity.class)));
 
+        FootprintStatus = UDD.GetFootprintStatus();
         setUiColor();
         checkAndPrepareModel();
 
@@ -70,7 +75,7 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
             public void onTick(long millisUntilFinished) {}
 
             public void onFinish() {
-                String input = "Hello";
+                String input = "I'm a person living in Hong Kong, my CO2e emission this month is " + UDD.GetFootprint() + "tonne(s), give me a concise suggestion within 35 words on reducing my emission. Please only contain the suggestions.";
                 if (!input.isEmpty() && llmInference != null) {
                     generateResponse(input);
                 } else if (llmInference == null) {
@@ -198,6 +203,7 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
     private String convertMarkdownToHtml(String text) {
         return text
                 .replace("\\n", "\n")
+                .replaceAll("\n\n", "\n")
                 .replaceAll("\\*\\*(.*?)\\*\\*", "<b>$1</b>")
                 .replaceAll("\\*(.*?)\\*", "<i>$1</i>")
                 .replace("\n", "<br>");
@@ -212,14 +218,20 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
 
     public void setUiColor() {
         if (FootprintStatus == 0) { // Good
+            BackgroundImage.setImageResource(R.drawable.good_bg);
+            FeedBackground.setColorFilter(ContextCompat.getColor(this, R.color.good_bg_color), android.graphics.PorterDuff.Mode.SRC_IN);
             Suggestions.setTextColor(getResources().getColor(R.color.good_fg_color));
             Suggestions.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.good_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
             main.setBackgroundColor(getResources().getColor(R.color.good_bg_color));
         } else if (FootprintStatus == 1) { // Bad
+            BackgroundImage.setImageResource(R.drawable.bad_bg);
+            FeedBackground.setColorFilter(ContextCompat.getColor(this, R.color.bad_bg_color), android.graphics.PorterDuff.Mode.SRC_IN);
             Suggestions.setTextColor(getResources().getColor(R.color.bad_fg_color));
             Suggestions.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.bad_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
             main.setBackgroundColor(getResources().getColor(R.color.bad_bg_color));
         } else if (FootprintStatus == 2) { // Very Bad
+            BackgroundImage.setImageResource(R.drawable.verybad_bg);
+            FeedBackground.setColorFilter(ContextCompat.getColor(this, R.color.verybad_bg_color), android.graphics.PorterDuff.Mode.SRC_IN);
             Suggestions.setTextColor(getResources().getColor(R.color.verybad_fg_color));
             Suggestions.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.verybad_bg_color), android.graphics.PorterDuff.Mode.SRC_ATOP);
             main.setBackgroundColor(getResources().getColor(R.color.verybad_bg_color));

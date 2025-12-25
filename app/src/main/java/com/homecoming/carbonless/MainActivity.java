@@ -20,9 +20,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
-    int FootprintStatus = 0; // 0 = good, 1 = bad, 2 = very bad
-    double CarbonFootprintDaily = 2;
-    String UserName = "George";
+    int FootprintStatus; // 0 = good, 1 = bad, 2 = very bad
+    String Username = UDD.GetUsername();
     ImageView BackgroundImage;
     ImageView FeedBackground;
     ImageView CreateFeed;
@@ -67,21 +66,13 @@ public class MainActivity extends AppCompatActivity {
         });
         main = findViewById(R.id.main);
         CarbnFootprint = findViewById(R.id.CarbnFootprint);
-        CarbnFootprint.setText(CarbonFootprintDaily + " kg CO2e");
-        // Normal (Sustainable): 6 – 7 kg	(This is the target "Earth-friendly" daily budget for 2030.)
-        // Global Average: 12 – 18 kg	(The current actual average per person globally.)
-        // High: 35 – 50 kg	(Common in Western Europe or for frequent travelers.)
-        // Too High: Over 60 kg	(The average for residents of the US, Canada, or Australia.)
-        if (CarbonFootprintDaily > 16 && CarbonFootprintDaily <= 30) {
-            FootprintStatus = 1;
-        } else if (CarbonFootprintDaily > 30) {
-            FootprintStatus = 2;
-        }
+        CarbnFootprint.setText(UDD.GetDailyFootprint() + " kg CO2e");
+        FootprintStatus = UDD.GetDailyFootprintStatus();
         setUiColor();
 
         title = findViewById(R.id.title);
-        if (UserName != null) {
-            title.setText("Hi, " + UserName + "!");
+        if (Username != null) {
+            title.setText("Hi, " + Username + "!");
         }
 
         recyclerView = findViewById(R.id.FeedView);

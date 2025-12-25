@@ -36,6 +36,7 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
     int FootprintStatus;
     ImageView BackgroundImage, Back, Settings, FeedBackground;
     TextView CarbnFootprint, Suggestions;
+    View BackTouchArea;
     ConstraintLayout main;
     private LlmInference llmInference;
     //private final String MODEL_URL = "https://huggingface.co/litert-community/Gemma3-1B-IT/resolve/main/Gemma3-1B-IT_multi-prefill-seq_q4_block128_ekv1280.task";
@@ -53,7 +54,7 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
 
         // Initialize Views
         BackgroundImage = findViewById(R.id.BackgroundImage);
-        Back = findViewById(R.id.back);
+        BackTouchArea = findViewById(R.id.BackTouchArea);
         Settings = findViewById(R.id.settings);
         CarbnFootprint = findViewById(R.id.CarbnFootprint);
         Suggestions = findViewById(R.id.Suggestions);
@@ -65,7 +66,7 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
         ChatString = new StringBuilder("AI Suggestion:\n");
 
 
-        Back.setOnClickListener(v -> startActivity(new Intent(CarbonFootprintGeneral.this, MainActivity.class)));
+        BackTouchArea.setOnClickListener(v -> startActivity(new Intent(CarbonFootprintGeneral.this, MainActivity.class)));
 
         FootprintStatus = UDD.GetFootprintStatus();
         setUiColor();

@@ -72,7 +72,11 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
         setUiColor();
         checkAndPrepareModel();
 
-        new CountDownTimer(1000, 100) {
+        GenerateSuggestions();
+    }
+
+    private void GenerateSuggestions() {
+        new CountDownTimer(500, 100) {
             public void onTick(long millisUntilFinished) {}
 
             public void onFinish() {
@@ -81,11 +85,11 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
                     generateResponse(input);
                 } else if (llmInference == null) {
                     Suggestions.setText(ChatString + "AI is still loading...");
+                    GenerateSuggestions();
                 }
             }
         }.start();
     }
-
     private void checkAndPrepareModel() {
         File modelFile = new File(getExternalFilesDir(null), MODEL_FILE_NAME);
         if (modelFile.exists()) {
@@ -97,7 +101,6 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
             startModelDownload();
         }
     }
-
     private final BroadcastReceiver onDownloadComplete = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {

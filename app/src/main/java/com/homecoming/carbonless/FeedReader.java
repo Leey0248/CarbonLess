@@ -69,12 +69,11 @@ public class FeedReader extends AppCompatActivity {
             }
         });
 
-        // Load your content
+        // Load content
         String ContentURL = getIntent().getStringExtra("ContentURL");
         if (ContentURL != null) {
             WebView.loadUrl(ContentURL);
         } else {
-            // Ensure your drawable file is named error.png (all lowercase)
             String htmlContent = "<html>" +
                     "<head>" +
                     "<style>" +

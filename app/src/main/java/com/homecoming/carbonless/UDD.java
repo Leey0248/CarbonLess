@@ -6,7 +6,7 @@ import android.os.CountDownTimer;
 import android.util.Log;
 
 public class UDD { // Unified Data Directory
-    static double CarbonFootprintDaily = 24; // in kg
+    static double CarbonFootprintDaily = 2; // in kg
     static double CarbonFootprint = 0.6; // in t
     static String Username = "Peter";
     static boolean DataLoaded = false; // Must be defined at class level

@@ -145,12 +145,10 @@
                     app:tint="@color/good_bg_color"
                     android:layout_marginTop="400dp"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="@id/FeedView"
+                    app:layout_constraintBottom_toBottomOf="@+id/Hello"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     tools:ignore="NotSibling" />
-
-
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </ScrollView>

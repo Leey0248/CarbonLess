@@ -35,7 +35,10 @@ public class FeedReader extends AppCompatActivity {
         main =findViewById(R.id.main);
         NavigationView = findViewById(R.id.NavigationView);
         Back = findViewById(R.id.back);
-        Back.setOnClickListener(v -> {getOnBackPressedDispatcher().onBackPressed();});
+        Back.setOnClickListener(v -> {
+            startActivity(new Intent(FeedReader.this, MainActivity.class));
+            //getOnBackPressedDispatcher().onBackPressed();
+        });
 
         WebView = findViewById(R.id.WebView);
 

@@ -1,5 +1,6 @@
 package com.homecoming.carbonless;
 
+import android.content.Context; // Added import
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,13 +13,12 @@ import java.util.List;
 public class FeedItemAdapter extends RecyclerView.Adapter<FeedItemAdapter.FeedViewHolder> {
 
     private final List<FeedItem> dataList;
-    private final OnItemClickListener listener; // Added as final
+    private final OnItemClickListener listener;
 
     public interface OnItemClickListener {
-        void onItemClick(FeedItem item); // Passing the data object is often most helpful
+        void onItemClick(FeedItem item);
     }
 
-    // Updated Constructor: Now requires both data and the listener
     public FeedItemAdapter(List<FeedItem> dataList, OnItemClickListener listener) {
         this.dataList = dataList;
         this.listener = listener;
@@ -37,7 +37,6 @@ public class FeedItemAdapter extends RecyclerView.Adapter<FeedItemAdapter.FeedVi
 
             itemView.setOnClickListener(v -> {
                 int position = getAdapterPosition();
-                // Ensure the click is valid and the listener exists
                 if (position != RecyclerView.NO_POSITION) {
                     listener.onItemClick(dataList.get(position));
                 }
@@ -45,27 +44,31 @@ public class FeedItemAdapter extends RecyclerView.Adapter<FeedItemAdapter.FeedVi
         }
     }
 
-    // --- 2. onCreateViewHolder: Called when RecyclerView needs a new ViewHolder ---
     @NonNull
     @Override
     public FeedViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate the item layout (list_item.xml)
         View view = LayoutInflater.from(parent.getContext())
                 .inflate(R.layout.feed_item, parent, false);
         return new FeedViewHolder(view);
     }
 
-    // --- 3. onBindViewHolder: Binds the data to the views in the ViewHolder ---
     @Override
     public void onBindViewHolder(@NonNull FeedViewHolder holder, int position) {
         FeedItem currentItem = dataList.get(position);
+
+        // 1. Get the context from the view
+        Context context = holder.itemView.getContext();
+
+        // 2. Get the URL string
         String imageUrl = String.valueOf(currentItem.getImageUrl());
-        ImageDownloader.downloadAndSetImage(imageUrl, holder.Image);
+
+        // 3. Pass the context to our updated ImageDownloader
+        ImageDownloader.downloadAndSetImage(context, imageUrl, holder.Image);
+
         holder.Title.setText(currentItem.getTitle());
         holder.Summary.setText(currentItem.getSummary());
     }
 
-    // --- 4. getItemCount: Returns the total number of items ---
     @Override
     public int getItemCount() {
         return dataList.size();

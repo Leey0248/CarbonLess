@@ -80,7 +80,12 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(LoadReceiver);
+        try {
+            unregisterReceiver(LoadReceiver);
+        } catch (IllegalArgumentException e) {
+            // Receiver was not registered or already unregistered
+            Log.e("LoadReceiver_OnPause", "Receiver not registered: " + e.getMessage());
+        }
     }
     private final BroadcastReceiver LoadReceiver = new BroadcastReceiver() {
         @Override

@@ -76,7 +76,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
         recyclerView = findViewById(R.id.FeedView);
-        loadFeed();
 
         registerReceiver(
                 LoadReceiver,
@@ -90,7 +89,12 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(LoadReceiver);
+        try {
+            unregisterReceiver(LoadReceiver);
+        } catch (IllegalArgumentException e) {
+            // Receiver was not registered or already unregistered
+            Log.e("LoadReceiver_OnPause", "Receiver not registered: " + e.getMessage());
+        }
     }
     private final BroadcastReceiver LoadReceiver = new BroadcastReceiver() {
         @Override
@@ -99,24 +103,32 @@ public class MainActivity extends AppCompatActivity {
         }
     };
     public void loadData() {
+        loadFeed();
         CarbnFootprint.setText(UDD.GetDailyFootprint() + " kg CO2e");
         FootprintStatus = UDD.GetDailyFootprintStatus();
         setUiColor();
     }
+
     public void loadFeed() {
         // Setting up the RecyclerView
         FeedList.clear();
         recyclerView = findViewById(R.id.FeedView);
 
         // Insert data
+        FeedList.add(new FeedItem("file:///android_res/drawable/art1", "Upcycling Chic: Transform Old Clothes into Fashionable Finds", "Transforming old garments into new accessories or home decor saves money and diverts textile waste from landfills, directly countering the high environmental cost of the fashion industry."));
+        FeedList.add(new FeedItem("file:///android_res/drawable/art2", "DIY Home Hacks: Reduce Your Carbon Footprint, One Project at a Time", "Repurposing common household items like glass jars and wooden pallets reduces your carbon footprint by giving a second life to materials that would otherwise require energy-intensive manufacturing to replace."));
+        FeedList.add(new FeedItem("file:///android_res/drawable/art3", "Grow Your Own Greenery: Composting and Container Gardens", "By combining kitchen scrap composting with recycled-container gardening, you create a sustainable loop that minimizes methane emissions and reduces the carbon impact of transporting store-bought produce."));
         FeedList.add(new FeedItem("https://cdn.iview.abc.net.au/thumbs/1152/zw/ZW3739A038S00_67205bc59312f.jpg", "Item 1", "The quick brown fox jumps over the box."));
         FeedList.add(new FeedItem("https://cdn.iview.abc.net.au/thumbs/1152/zw/ZW2487A035S00_6242660dd04c0.jpg", "Item 2", "Peppa helps Danny Dog with a bedroom make-over on the theme of pirates and sea monsters."));
         FeedList.add(new FeedItem("https://cdn.iview.abc.net.au/thumbs/1152/zw/ZW2487A031S00_6239303f2e23e.jpg", "Item 3", "Peppa and her friends are playing in their clubhouse. The Club House has a fold down counter at the front. The children pretend to be a little shop for the parents to buy things from."));
 
+
         adapter = new FeedItemAdapter(FeedList, item -> {
             // Handle the click here
             Log.d("Click", "User selected: " + item.getTitle());
-            startActivity(new Intent(MainActivity.this, FeedReader.class).putExtra("ContentURL", "https://github.com/Leey0248/CarbonLess"));
+            startActivity(new Intent(MainActivity.this, FeedReader.class)
+                    .putExtra("ContentURL", "https://github.com/Leey0248/CarbonLess")
+            );
         });
 
         recyclerView.setLayoutManager(new LinearLayoutManager(this));

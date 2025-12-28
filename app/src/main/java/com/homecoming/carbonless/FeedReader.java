@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -14,6 +15,7 @@ import android.widget.ImageView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -57,9 +59,6 @@ public class FeedReader extends AppCompatActivity {
         webSettings.setBuiltInZoomControls(false);
         webSettings.setDisplayZoomControls(false);
 
-        webSettings.setUseWideViewPort(true);
-        webSettings.setLoadWithOverviewMode(true);
-
         webSettings.setAllowContentAccess(true);
         webSettings.setAllowFileAccess(true);
 
@@ -83,25 +82,27 @@ public class FeedReader extends AppCompatActivity {
             String htmlContent = "<html>" +
                     "<head>" +
                     "<style>" +
+                    "@font-face {" +
+                    "    font-family: 'ArialRoundedMtBold';" +
+                    "    src: url('file:///android_res/font/font.ttf');" +
+                    "}" +
                     "html, body { height: 100%; margin: 0; padding: 0; }" +
                     "body { " +
-                    "display: flex; " +
-                    "flex-direction: column; " +
-                    "justify-content: center; " +
-                    "align-items: center; " +
-                    "text-align: center; " +
-                    "background-color: #ffffff; " + // Optional: change background color
+                    "    display: flex; " +
+                    "    flex-direction: column; " +
+                    "    justify-content: center; " +
+                    "    align-items: center; " +
+                    "    text-align: center; " +
                     "}" +
-                    ".error-image { " +
-                    "width: 180px; " +
-                    "height: 180px; " +
-                    "object-fit: contain; " + // Ensures image isn't distorted
+                    "h3 { " +
+                    "    font-family: 'ArialRoundedMtBold', sans-serif !important; " + // !important ensures it overrides defaults
+                    "    margin-top: 20px; " +
+                    "    color: #333; " +
                     "}" +
-                    "h3 { font-family: sans-serif; margin-top: 20px; color: #333; }" +
                     "</style>" +
                     "</head>" +
                     "<body>" +
-                    "<img class='error-image' src='file:///android_res/drawable/error'>" +
+                    "<img src='file:///android_res/drawable/error' width='180'>" +
                     "<h3>Unable to load content: URL not found.</h3>" +
                     "</body>" +
                     "</html>";
@@ -120,7 +121,12 @@ public class FeedReader extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        unregisterReceiver(LoadReceiver);
+        try {
+            unregisterReceiver(LoadReceiver);
+        } catch (IllegalArgumentException e) {
+            // Receiver was not registered or already unregistered
+            Log.e("LoadReceiver_OnPause", "Receiver not registered: " + e.getMessage());
+        }
     }
     private final BroadcastReceiver LoadReceiver = new BroadcastReceiver() {
         @Override
@@ -136,12 +142,15 @@ public class FeedReader extends AppCompatActivity {
         if (FootprintStatus == 0) { // Good
             NavigationView.setBackgroundColor(getResources().getColor(R.color.good_bg_color));
             main.setBackgroundColor(getResources().getColor(R.color.good_bg_color));
+            Back.setColorFilter(ContextCompat.getColor(this, R.color.good_fg_color), android.graphics.PorterDuff.Mode.SRC_IN);
         } else if (FootprintStatus == 1) { // Bad
             NavigationView.setBackgroundColor(getResources().getColor(R.color.bad_bg_color));
             main.setBackgroundColor(getResources().getColor(R.color.bad_bg_color));
+            Back.setColorFilter(ContextCompat.getColor(this, R.color.bad_fg_color), android.graphics.PorterDuff.Mode.SRC_IN);
         } else if (FootprintStatus == 2) { // Very Bad
             NavigationView.setBackgroundColor(getResources().getColor(R.color.verybad_bg_color));
             main.setBackgroundColor(getResources().getColor(R.color.verybad_bg_color));
+            Back.setColorFilter(ContextCompat.getColor(this, R.color.verybad_fg_color), android.graphics.PorterDuff.Mode.SRC_IN);
         }
     }
 }

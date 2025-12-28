@@ -1,12 +1,39 @@
 package com.homecoming.carbonless;
 
+import android.content.Context;
+import android.content.Intent;
+import android.os.CountDownTimer;
 import android.util.Log;
 
 public class UDD { // Unified Data Directory
     static double CarbonFootprintDaily = 24; // in kg
     static double CarbonFootprint = 0.6; // in t
     static String Username = "Peter";
+    static boolean DataLoaded = false; // Must be defined at class level
 
+    public static void StartLoadingData(Context context) {
+        if (context == null) return;
+
+        Log.d("DataLoaded", String.valueOf(DataLoaded));
+        if (!DataLoaded) {
+            new CountDownTimer(400, 100) {
+
+                public void onTick(long millisUntilFinished) {}
+
+                public void onFinish() {
+                    SendBroadcast(context);
+                    DataLoaded = true;
+                }
+            }.start();
+        } else {
+            SendBroadcast(context);
+        }
+    }
+    private static void SendBroadcast(Context context) {
+        Intent intent = new Intent("com.homecoming.carbonless.onDataLoaded");
+        intent.setPackage(context.getPackageName());
+        context.sendBroadcast(intent);
+    }
     public static String GetUsername() {
         return Username;
     }

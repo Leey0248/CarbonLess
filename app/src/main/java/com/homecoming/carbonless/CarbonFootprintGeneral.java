@@ -43,6 +43,7 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
     private final String MODEL_URL = "https://drive.usercontent.google.com/download?id=1m-hzkBtQLfK1FB4xxwlvRWqFLZljD6DZ&export=download&confirm=t&uuid=12241e88-307e-45db-8d64-27cf7d72ff41";
     private final String MODEL_FILE_NAME = "gemma3.task";
     private long downloadID;
+    private boolean isGenerating = false;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -61,35 +62,49 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
         main = findViewById(R.id.main);
         FeedBackground = findViewById(R.id.FeedBackground);
 
-        CarbnFootprint.setText(UDD.GetFootprint() + " t CO2e");
-
         ChatString = new StringBuilder("AI Suggestion:\n");
 
 
         BackTouchArea.setOnClickListener(v -> startActivity(new Intent(CarbonFootprintGeneral.this, MainActivity.class)));
 
+        registerReceiver(
+                LoadReceiver,
+                new IntentFilter("com.homecoming.carbonless.onDataLoaded"),
+                Context.RECEIVER_NOT_EXPORTED
+        );
+
+        UDD.StartLoadingData(this);
+        checkAndPrepareModel();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(LoadReceiver);
+    }
+    private final BroadcastReceiver LoadReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            loadData();
+        }
+    };
+    public void loadData() {
+        GenerateSuggestions();
+        CarbnFootprint.setText(UDD.GetFootprint() + " t CO2e");
         FootprintStatus = UDD.GetFootprintStatus();
         setUiColor();
-        checkAndPrepareModel();
-
-        GenerateSuggestions();
     }
 
     private void GenerateSuggestions() {
-        new CountDownTimer(500, 100) {
-            public void onTick(long millisUntilFinished) {}
-
-            public void onFinish() {
-                String input = "I'm a person living in Hong Kong, my CO2e emission this month is " + UDD.GetFootprint() + "tonne(s), give me a concise suggestion within 35 words on reducing my emission. Please only contain the suggestions.";
-                if (!input.isEmpty() && llmInference != null) {
-                    generateResponse(input);
-                } else if (llmInference == null) {
-                    Suggestions.setText(ChatString + "AI is still loading...");
-                    GenerateSuggestions();
-                }
-            }
-        }.start();
+        if (llmInference == null) {
+            Suggestions.setText("AI is still loading...");
+            main.postDelayed(this::GenerateSuggestions, 500);
+            return;
+        }
+        String input = "I'm a person living in Hong Kong, my CO2e emission this month is " + UDD.GetFootprint() + "tonne(s), give me a concise suggestion within 35 words on reducing my emission. Please only contain the suggestions.";
+        generateResponse(input);
     }
+
     private void checkAndPrepareModel() {
         File modelFile = new File(getExternalFilesDir(null), MODEL_FILE_NAME);
         if (modelFile.exists()) {
@@ -176,9 +191,10 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
     }
 
     private void generateResponse(String prompt) {
-        if (llmInference == null) return;
+        if (llmInference == null || isGenerating) return; // Prevent overlapping calls
 
-        Suggestions.setText(ChatString + "Loading...");
+        isGenerating = true;
+        ChatString = new StringBuilder("AI Suggestion:\n");
 
         llmInference.generateResponseAsync(prompt, (result, done) -> {
             runOnUiThread(() -> {
@@ -188,7 +204,11 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
 
                 String formattedHtml = convertMarkdownToHtml(ChatString.toString());
 
-                if (done == true && formattedHtml.endsWith("<br>")){
+                if (done) {
+                    isGenerating = false; // Model is now safe to close
+                }
+
+                if (done && formattedHtml.endsWith("<br>")){
                     String trimmedHtml = formattedHtml.substring(0, formattedHtml.length() - 4);
                     Suggestions.setText(HtmlCompat.fromHtml(
                             trimmedHtml,
@@ -203,7 +223,6 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
             });
         });
     }
-
     private String convertMarkdownToHtml(String text) {
         return text
                 .replace("\\n", "\n")
@@ -216,8 +235,20 @@ public class CarbonFootprintGeneral extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try { unregisterReceiver(onDownloadComplete); } catch (Exception ignored) {}
-        if (llmInference != null) llmInference.close();
+        try {
+            unregisterReceiver(onDownloadComplete);
+        } catch (Exception ignored) {}
+
+        if (llmInference != null) {
+            if (!isGenerating) {
+                llmInference.close();
+            } else {
+                // If still generating, we can't call .close() or it crashes.
+                // The process will be killed by the OS anyway since the Activity is finishing.
+                Log.w(TAG, "Activity destroyed while LLM was busy. Skipping explicit close to prevent crash.");
+            }
+            llmInference = null;
+        }
     }
 
     public void setUiColor() {

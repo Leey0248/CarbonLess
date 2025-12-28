@@ -43,6 +43,7 @@ public class AIChat extends AppCompatActivity {
     private final String MODEL_URL = "https://drive.usercontent.google.com/download?id=1m-hzkBtQLfK1FB4xxwlvRWqFLZljD6DZ&export=download&confirm=t&uuid=12241e88-307e-45db-8d64-27cf7d72ff41";
     private final String MODEL_FILE_NAME = "gemma3.task";
     private long downloadID;
+    private boolean isGenerating = false;
 
     @SuppressLint("MissingInflatedId")
     @Override
@@ -104,8 +105,13 @@ public class AIChat extends AppCompatActivity {
 
         HomeItem.setOnClickListener(v -> startActivity(new Intent(AIChat.this, MainActivity.class)));
 
-        FootprintStatus = UDD.GetDailyFootprintStatus();
-        setUiColor();
+        registerReceiver(
+                LoadReceiver,
+                new IntentFilter("com.homecoming.carbonless.onDataLoaded"),
+                Context.RECEIVER_NOT_EXPORTED
+        );
+        UDD.StartLoadingData(this);
+
         checkAndPrepareModel();
 
         SendButton.setOnClickListener(v -> {
@@ -139,6 +145,22 @@ public class AIChat extends AppCompatActivity {
                 }, 300);
             }
         });
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(LoadReceiver);
+    }
+    private final BroadcastReceiver LoadReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            loadData();
+        }
+    };
+    public void loadData() {
+        FootprintStatus = UDD.GetDailyFootprintStatus();
+        setUiColor();
     }
 
     private void checkAndPrepareModel() {
@@ -228,7 +250,7 @@ public class AIChat extends AppCompatActivity {
     }
 
     private void generateResponse(String prompt) {
-        if (llmInference == null) return;
+        if (llmInference == null || isGenerating) return; // Prevent overlapping calls
 
         LLMChat.setText(ChatString + "\n\nThinking...");
         final boolean[] isFirstData = {true};
@@ -250,6 +272,10 @@ public class AIChat extends AppCompatActivity {
                         formattedHtml,
                         HtmlCompat.FROM_HTML_MODE_LEGACY
                 ));
+
+                if (done) {
+                    isGenerating = false; // Model is now safe to close
+                }
             });
         });
     }
@@ -265,8 +291,20 @@ public class AIChat extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        try { unregisterReceiver(onDownloadComplete); } catch (Exception ignored) {}
-        if (llmInference != null) llmInference.close();
+        try {
+            unregisterReceiver(onDownloadComplete);
+        } catch (Exception ignored) {}
+
+        if (llmInference != null) {
+            if (!isGenerating) {
+                llmInference.close();
+            } else {
+                // If still generating, we can't call .close() or it crashes.
+                // The process will be killed by the OS anyway since the Activity is finishing.
+                Log.w(TAG, "Activity destroyed while LLM was busy. Skipping explicit close to prevent crash.");
+            }
+            llmInference = null;
+        }
     }
 
     public void setUiColor() {

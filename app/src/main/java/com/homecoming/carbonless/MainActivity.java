@@ -1,12 +1,14 @@
 package com.homecoming.carbonless;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -67,9 +69,6 @@ public class MainActivity extends AppCompatActivity {
         });
         main = findViewById(R.id.main);
         CarbnFootprint = findViewById(R.id.CarbnFootprint);
-        CarbnFootprint.setText(UDD.GetDailyFootprint() + " kg CO2e");
-        FootprintStatus = UDD.GetDailyFootprintStatus();
-        setUiColor();
 
         title = findViewById(R.id.title);
         if (Username != null) {
@@ -78,8 +77,32 @@ public class MainActivity extends AppCompatActivity {
 
         recyclerView = findViewById(R.id.FeedView);
         loadFeed();
+
+        registerReceiver(
+                LoadReceiver,
+                new IntentFilter("com.homecoming.carbonless.onDataLoaded"),
+                Context.RECEIVER_NOT_EXPORTED
+        );
+
+        UDD.StartLoadingData(this);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(LoadReceiver);
+    }
+    private final BroadcastReceiver LoadReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            loadData();
+        }
+    };
+    public void loadData() {
+        CarbnFootprint.setText(UDD.GetDailyFootprint() + " kg CO2e");
+        FootprintStatus = UDD.GetDailyFootprintStatus();
+        setUiColor();
+    }
     public void loadFeed() {
         // Setting up the RecyclerView
         FeedList.clear();

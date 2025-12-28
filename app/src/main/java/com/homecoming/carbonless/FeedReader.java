@@ -1,6 +1,9 @@
 package com.homecoming.carbonless;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -103,10 +106,29 @@ public class FeedReader extends AppCompatActivity {
             WebView.loadDataWithBaseURL("file:///android_res/", htmlContent, "text/html", "UTF-8", null);
         }
 
+        registerReceiver(
+                LoadReceiver,
+                new IntentFilter("com.homecoming.carbonless.onDataLoaded"),
+                Context.RECEIVER_NOT_EXPORTED
+        );
+        UDD.StartLoadingData(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        unregisterReceiver(LoadReceiver);
+    }
+    private final BroadcastReceiver LoadReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            loadData();
+        }
+    };
+    public void loadData() {
         FootprintStatus = UDD.GetDailyFootprintStatus();
         setUiColor();
     }
-
     public void setUiColor() {
         if (FootprintStatus == 0) { // Good
             NavigationView.setBackgroundColor(getResources().getColor(R.color.good_bg_color));

@@ -1,6 +1,5 @@
 package com.homecoming.carbonless;
 
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,19 +12,18 @@ import java.util.List;
 public class FeedItemAdapter extends RecyclerView.Adapter<FeedItemAdapter.FeedViewHolder> {
 
     private final List<FeedItem> dataList;
+    private final OnItemClickListener listener; // Added as final
 
-    private OnItemLongClickListener longClickListener;
-
-    public interface OnItemLongClickListener {
-        // We pass the item and return a boolean (true means the event is consumed)
-        boolean onItemLongClick(View view, FeedItem item, int position);
+    public interface OnItemClickListener {
+        void onItemClick(FeedItem item); // Passing the data object is often most helpful
     }
 
-    public FeedItemAdapter(List<FeedItem> dataList) {
+    // Updated Constructor: Now requires both data and the listener
+    public FeedItemAdapter(List<FeedItem> dataList, OnItemClickListener listener) {
         this.dataList = dataList;
+        this.listener = listener;
     }
 
-    // --- 1. The ViewHolder: Holds the view references and click logic ---
     public class FeedViewHolder extends RecyclerView.ViewHolder {
         public ImageView Image;
         public TextView Title;
@@ -37,9 +35,12 @@ public class FeedItemAdapter extends RecyclerView.Adapter<FeedItemAdapter.FeedVi
             Title = itemView.findViewById(R.id.Title);
             Summary = itemView.findViewById(R.id.Summary);
 
-            // Set the Long Click listener on the entire item view
             itemView.setOnClickListener(v -> {
-                Log.d("FeedItem", "Item Pressed!");
+                int position = getAdapterPosition();
+                // Ensure the click is valid and the listener exists
+                if (position != RecyclerView.NO_POSITION) {
+                    listener.onItemClick(dataList.get(position));
+                }
             });
         }
     }

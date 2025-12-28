@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
@@ -89,7 +90,12 @@ public class MainActivity extends AppCompatActivity {
         FeedList.add(new FeedItem("https://cdn.iview.abc.net.au/thumbs/1152/zw/ZW2487A035S00_6242660dd04c0.jpg", "Item 2", "Peppa helps Danny Dog with a bedroom make-over on the theme of pirates and sea monsters."));
         FeedList.add(new FeedItem("https://cdn.iview.abc.net.au/thumbs/1152/zw/ZW2487A031S00_6239303f2e23e.jpg", "Item 3", "Peppa and her friends are playing in their clubhouse. The Club House has a fold down counter at the front. The children pretend to be a little shop for the parents to buy things from."));
 
-        adapter = new FeedItemAdapter(FeedList);
+        adapter = new FeedItemAdapter(FeedList, item -> {
+            // Handle the click here
+            Log.d("Click", "User selected: " + item.getTitle());
+            startActivity(new Intent(MainActivity.this, FeedReader.class).putExtra("ContentURL", "https://github.com/Leey0248/CarbonLess"));
+        });
+
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setAdapter(adapter);
     }

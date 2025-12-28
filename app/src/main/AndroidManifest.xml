@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CarbonLess">
         <activity
+            android:name=".FeedReader"
+            android:exported="false" />
+        <activity
             android:name=".CarbonFootprintGeneral"
             android:exported="false" />
         <activity

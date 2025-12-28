@@ -32,7 +32,7 @@ public class AIChat extends AppCompatActivity {
 
     private static final String TAG = "AIChat_Debug";
     StringBuilder ChatString;
-    int FootprintStatus = 0;
+    int FootprintStatus;
     EditText ChatBox;
     LinearLayout NavigationRow, HomeItem, ChatItem;
     ImageView HomeButton, ChatButton, SendButton;
@@ -104,6 +104,7 @@ public class AIChat extends AppCompatActivity {
 
         HomeItem.setOnClickListener(v -> startActivity(new Intent(AIChat.this, MainActivity.class)));
 
+        FootprintStatus = UDD.GetDailyFootprintStatus();
         setUiColor();
         checkAndPrepareModel();
 

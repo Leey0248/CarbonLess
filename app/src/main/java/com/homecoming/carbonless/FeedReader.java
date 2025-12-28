@@ -1,7 +1,6 @@
 package com.homecoming.carbonless;
 
 import android.content.Intent;
-import android.graphics.PorterDuff;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
@@ -9,11 +8,9 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.ImageView;
-
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -35,9 +32,7 @@ public class FeedReader extends AppCompatActivity {
         main =findViewById(R.id.main);
         NavigationView = findViewById(R.id.NavigationView);
         Back = findViewById(R.id.back);
-        Back.setOnClickListener(v -> {
-            getOnBackPressedDispatcher().onBackPressed();
-        });
+        Back.setOnClickListener(v -> {getOnBackPressedDispatcher().onBackPressed();});
 
         WebView = findViewById(R.id.WebView);
 
